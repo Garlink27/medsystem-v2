@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Sidebar from '@/app/components/ui/Sidebar';
 import Topbar  from '@/app/components/ui/Topbar';
 
-export default function PatientLayout({ children }: { children: React.ReactNode }) {
+export default function DoctorLayout({ children }: { children: React.ReactNode }) {
   const raw = cookies().get('session')?.value;
   if (!raw) redirect('/');
   return (

@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Set HttpOnly cookie (7 days)
-    const response = NextResponse.json({ ok: true, roleName: user.roleName });
+    const response = NextResponse.json({ ok: true, roleName: user.roleName, userId: user.userId, firstName: user.firstName, lastName: user.lastName, email: user.email });
     response.cookies.set('session', JSON.stringify(session), {
       httpOnly: true,
       path:     '/',

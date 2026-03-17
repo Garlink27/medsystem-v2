@@ -1,16 +1,23 @@
 'use client';
 
 import { Bell } from 'lucide-react';
+import { useSession } from './useSession';
 
-interface TopbarProps {
-  pageTitle:    string;
-  pageSubtitle?: string;
-  userName:     string;
-  userEmail:    string;
-}
+const ROLE_AVATAR_BG: Record<string, string> = {
+  Estudiante:    'bg-emerald-500',
+  Doctor:        'bg-blue-500',
+  Administrador: 'bg-purple-500',
+  Nutriólogo:    'bg-orange-500',
+  Entrenador:    'bg-cyan-500',
+  'Jefe Médico': 'bg-indigo-500',
+};
 
-export default function Topbar({ pageTitle, pageSubtitle, userName, userEmail }: TopbarProps) {
-  const initial = userName?.charAt(0)?.toUpperCase() ?? 'U';
+export default function Topbar({ pageTitle }: { pageTitle?: string }) {
+  const session  = useSession();
+
+  const fullName = session ? `${session.firstName} ${session.lastName}` : null;
+  const initial  = session?.firstName?.charAt(0)?.toUpperCase() ?? '';
+  const avatarBg = ROLE_AVATAR_BG[session?.roleName ?? ''] ?? 'bg-slate-400';
 
   const dateStr = new Date().toLocaleDateString('es-MX', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -19,8 +26,8 @@ export default function Topbar({ pageTitle, pageSubtitle, userName, userEmail }:
   return (
     <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 flex-shrink-0">
       <div>
-        <p className="font-semibold text-slate-800 capitalize">{pageTitle}</p>
-        <p className="text-xs text-slate-400 capitalize">{pageSubtitle ?? dateStr}</p>
+        <p className="font-semibold text-slate-800">{pageTitle ?? 'MedSystem'}</p>
+        <p className="text-xs text-slate-400 capitalize">{dateStr}</p>
       </div>
 
       <div className="flex items-center gap-4">
@@ -41,16 +48,26 @@ export default function Topbar({ pageTitle, pageSubtitle, userName, userEmail }:
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
         </button>
 
-        {/* Avatar */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-            {initial}
+        {/* Avatar — skeleton while loading */}
+        {session === null ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse" />
+            <div className="hidden sm:block space-y-1.5">
+              <div className="h-3 bg-slate-200 rounded animate-pulse w-24" />
+              <div className="h-2.5 bg-slate-200 rounded animate-pulse w-32" />
+            </div>
           </div>
-          <div className="hidden sm:block">
-            <p className="text-sm font-semibold text-slate-800 leading-none">{userName}</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">{userEmail}</p>
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <div className={`w-8 h-8 ${avatarBg} rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+              {initial}
+            </div>
+            <div className="hidden sm:block">
+              <p className="text-sm font-semibold text-slate-800 leading-none">{fullName}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{session.email}</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

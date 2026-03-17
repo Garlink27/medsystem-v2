@@ -62,11 +62,23 @@ export default function LoginPage() {
         return;
       }
 
+      // Save session to localStorage so Sidebar/Topbar can read it client-side
+      localStorage.setItem('session', JSON.stringify({
+        userId:    data.userId,
+        firstName: data.firstName,
+        lastName:  data.lastName,
+        email:     data.email,
+        roleName:  data.roleName,
+      }));
+
       // Redirect based on role
       const roleRoutes: Record<string, string> = {
         Estudiante:    '/patient/dashboard',
-        Doctor:        '/patient/dashboard', // change to /doctor/dashboard later
-        Administrador: '/patient/dashboard', // change to /admin/dashboard later
+        Doctor:        '/doctor/dashboard',
+        'Jefe Médico': '/doctor/dashboard',
+        Nutriólogo:    '/doctor/dashboard',
+        Entrenador:    '/doctor/dashboard',
+        Administrador: '/patient/dashboard', // change to /admin when ready
       };
       router.replace(roleRoutes[data.roleName] ?? '/patient/dashboard');
     } catch {
