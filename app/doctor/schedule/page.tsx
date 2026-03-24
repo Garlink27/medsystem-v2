@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock3, RefreshCw } from 'lucide-react';
 
 interface Apt {
   appointmentId: number; patientName: string;
@@ -40,8 +40,8 @@ export default function DoctorSchedule() {
   const [aptFilter, setAptFilter] = useState<'all' | DStatus>('all');
 
   const getDoctorId = () => {
-    const raw = document.cookie.split('; ').find(r => r.startsWith('session='))?.split('=')[1];
-    try { return JSON.parse(decodeURIComponent(raw ?? '')).userId; } catch { return 2; }
+    try { return JSON.parse(localStorage.getItem('session') ?? '{}').userId ?? 2; }
+    catch { return 2; }
   };
 
   const reload = () => {
@@ -49,7 +49,14 @@ export default function DoctorSchedule() {
       .then(r => r.json())
       .then(d => { setApts(d.appointments ?? []); setLoading(false); });
   };
-  useEffect(() => { reload(); }, []); // eslint-disable-line
+
+  useEffect(() => {
+    reload();
+    const interval = setInterval(reload, 30000);
+    const onVisible = () => { if (document.visibilityState === 'visible') reload(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
+  }, []); // eslint-disable-line
 
   const updateStatus = async (id: number, status: string) => {
     await fetch('/api/doctor', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ appointmentId: id, status }) });
@@ -87,9 +94,17 @@ export default function DoctorSchedule() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="page-title">Mi Agenda</h1>
-        <p className="page-subtitle">Gestiona y actualiza el estado de tus citas</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="page-title">Mi Agenda</h1>
+          <p className="page-subtitle">Gestiona y actualiza el estado de tus citas</p>
+        </div>
+        <button
+          onClick={reload}
+          className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" /> Actualizar
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
