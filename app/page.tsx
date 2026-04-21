@@ -78,7 +78,7 @@ export default function LoginPage() {
         'Jefe Médico': '/doctor/dashboard',
         Nutriólogo:    '/doctor/dashboard',
         Entrenador:    '/doctor/dashboard',
-        Administrador: '/patient/dashboard', // change to /admin when ready
+        Administrador: '/admin/dashboard', // change to /admin when ready
       };
       router.replace(roleRoutes[data.roleName] ?? '/patient/dashboard');
     } catch {

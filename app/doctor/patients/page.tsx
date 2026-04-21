@@ -25,10 +25,10 @@ export default function DoctorPatients() {
   const [search,   setSearch]   = useState('');
   const [selected, setSelected] = useState<PatientRow | null>(null);
 
-  const getDoctorId = () => {
-    const raw = document.cookie.split('; ').find(r => r.startsWith('session='))?.split('=')[1];
-    try { return JSON.parse(decodeURIComponent(raw ?? '')).userId; } catch { return 2; }
-  };
+const getDoctorId = () => {
+  try { return JSON.parse(localStorage.getItem('session') ?? '{}').userId ?? 2; } 
+  catch { return 2; }
+};
 
   useEffect(() => {
     fetch(`/api/doctor?doctorId=${getDoctorId()}`)
